@@ -52,6 +52,8 @@ void abp_sender_sighandler(int signum, siginfo_t *info, void *ptr) {
         case S2:
             ok = buffer[1] == '1';
             break;
+        default:
+            break;
     }
     if (ok) {
         strcat(buffer, OK);
