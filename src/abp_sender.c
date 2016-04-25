@@ -37,7 +37,7 @@ void abp_alarm_handler(int signum, siginfo_t *info, void *ptr) {
 }
 
 void abp_sender_sighandler(int signum, siginfo_t *info, void *ptr) {
-    const char *fail = "\tfail";
+    const char *FAIL = "\tfail";
     const char *OK = "\tok";
     char buffer[MSGLEN + BUFSIZE];
     int incoming = pipe_two[0];
@@ -56,8 +56,7 @@ void abp_sender_sighandler(int signum, siginfo_t *info, void *ptr) {
     if (ok) {
         strcat(buffer, OK);
     } else {
-        pause();
-        return;
+        strcat(buffer, FAIL);
     }
     write_to_stdout(buffer);
     abp_sender_signal = signum;

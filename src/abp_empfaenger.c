@@ -22,34 +22,32 @@ volatile sig_atomic_t abp_empfaenger_signal = SIGUSR2;
 void abp_empfaenger_sighandler(int signum, siginfo_t *info, void *ptr);
 
 void abp_empfaenger_sighandler(int signum, siginfo_t *info, void *ptr) {
-    if ((rand() % 100) < 10) {
-        write_to_stdout("lost");
+    const char *FAIL = "\tFAIL";
+    const char *OK = "\tok";
+    char buffer[MSGLEN + BUFSIZE];
+    int incoming = pipe_one[0];
+    read(incoming, buffer, MSGLEN);
+    int ok = 0;
+    switch (abp_empfaenger_state) {
+        case E1:
+            ok = buffer[1] == '0';
+            break;
+        case E2:
+            ok = buffer[1] == '1';
+            break;
+    }
+    if (ok) {
+        strcat(buffer, OK);
+    } else {
+        strcat(buffer, FAIL);
+    }
+    if ((rand() % 100) < (ABP_EMPFAENGER_LOSSRATE)) {
+        write_to_stdout("LOST");
         abp_empfaenger_signal = SIGALRM;
     } else {
-        const char *fail = "\tfail";
-        const char *OK = "\tok";
-        char buffer[MSGLEN + BUFSIZE];
-        int incoming = pipe_one[0];
-        read(incoming, buffer, MSGLEN);
-        int ok = 0;
-        switch (abp_empfaenger_state) {
-            case E1:
-                ok = buffer[1] == '0';
-                break;
-            case E2:
-                ok = buffer[1] == '1';
-                break;
-        }
-        if (ok) {
-            strcat(buffer, OK);
-        } else {
-            pause();
-            return;
-        }
         write_to_stdout(buffer);
         abp_empfaenger_signal = signum;
     }
-
 }
 
 int abp_empfaenger_run() {
@@ -71,6 +69,7 @@ int abp_empfaenger_run() {
 
     srand(time(NULL));
     pause();
+
     while (*message) {
         if (abp_empfaenger_signal != SIGALRM) {
             switch (abp_empfaenger_state) {
