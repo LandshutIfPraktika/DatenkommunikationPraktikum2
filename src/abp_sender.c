@@ -29,10 +29,10 @@ void abp_alarm_handler(int signum, siginfo_t *info, void *ptr);
 
 enum sender_state abp_sender_state;
 
-volatile sig_atomic_t abp_sender_signal = SIGUSR1;
+volatile sig_atomic_t abp_sender_signal = SIGALRM;
 
 void abp_alarm_handler(int signum, siginfo_t *info, void *ptr) {
-    write_to_stdout("ALARM");
+    //write_to_stdout("ALARM");
     abp_sender_signal = signum;
 }
 
@@ -90,19 +90,19 @@ int abp_sender_run(pid_t empfaenger) {
 
     sleep(1);
 
-    *buffer = *(message++);
-    *(buffer + 1) = CHAR_ZERO;
-    *(buffer + 2) = CHAR_TERMINATOR;
-    write(outgoing, buffer, MSGLEN);
-    abp_sender_state = S1;
-    kill(empfaenger, SIGUSR2);
-    pause();
-
     while (*message) {
         alarm(0);
 
         abp_sender_save_state(&saved_state, abp_sender_state, message);
         switch (abp_sender_state) {
+            case S0:
+                *buffer = *(message);
+                *(buffer + 1) = CHAR_ZERO;
+                *(buffer + 2) = CHAR_TERMINATOR;
+                write(outgoing, buffer, MSGLEN);
+                abp_sender_state = S1;
+                break;
+
             case S1:
                 *buffer = *(message++);
                 *(buffer + 1) = CHAR_ONE;
@@ -122,7 +122,10 @@ int abp_sender_run(pid_t empfaenger) {
         //write_to_stdout("sender wait");
         alarm(TIME_OUT);
         kill(empfaenger, SIGUSR2);
-        pause();
+
+        if (*message) {
+            pause();
+        }
         if (abp_sender_signal == SIGALRM) {
             abp_sender_restore_state(saved_state, &abp_sender_state, &message);
         }
