@@ -42,7 +42,9 @@ void abp_empfaenger_sighandler(int signum, siginfo_t *info, void *ptr) {
         strcat(buffer, FAIL);
     }
     if ((rand() % 100) < (ABP_EMPFAENGER_LOSSRATE)) {
-        //write_to_stdout("LOST");
+#ifdef VERBOSE
+        write_to_stdout("LOST");
+#endif
         abp_empfaenger_signal = SIGALRM;
     } else {
         write_to_stdout(buffer);

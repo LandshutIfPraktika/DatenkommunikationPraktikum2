@@ -32,7 +32,9 @@ enum sender_state abp_sender_state;
 volatile sig_atomic_t abp_sender_signal = SIGALRM;
 
 void abp_alarm_handler(int signum, siginfo_t *info, void *ptr) {
-    //write_to_stdout("ALARM");
+#ifdef VERBOSE
+    write_to_stdout("ALARM");
+#endif
     abp_sender_signal = signum;
 }
 
