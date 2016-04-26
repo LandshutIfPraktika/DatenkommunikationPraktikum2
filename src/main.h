@@ -12,7 +12,6 @@
 #define CHAR_TERMINATOR '\0'
 #define TIME_OUT 1
 
-#define VERBOSE
 #define ABP_EMPFAENGER_LOSSRATE 50
 
 void write_to_stdout(char *string);

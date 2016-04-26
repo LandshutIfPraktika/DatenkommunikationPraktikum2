@@ -100,7 +100,7 @@ int abp_sender_run(pid_t empfaenger) {
         abp_sender_save_state(&saved_state, abp_sender_state, message);
         switch (abp_sender_state) {
             case S0:
-                *buffer = *(message);
+                *buffer = *(message++);
                 *(buffer + 1) = CHAR_ZERO;
                 *(buffer + 2) = CHAR_TERMINATOR;
                 write(outgoing, buffer, MSGLEN);
@@ -127,9 +127,7 @@ int abp_sender_run(pid_t empfaenger) {
         alarm(TIME_OUT);
         kill(empfaenger, SIGUSR2);
 
-        if (*message) {
-            pause();
-        }
+        pause();
         if (abp_sender_signal == SIGALRM) {
             abp_sender_restore_state(saved_state, &abp_sender_state, &message);
         }

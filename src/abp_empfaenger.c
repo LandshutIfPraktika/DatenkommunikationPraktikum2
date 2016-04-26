@@ -94,10 +94,9 @@ int abp_empfaenger_run() {
             //write_to_stdout("empfaenger wait");
             kill(sender, SIGUSR1);
         }
-        if (*message) {
-            pause();
-        }
+        pause();
     }
+
     kill(sender, SIGUSR1);
     sleep(1);
     return 0;
